@@ -1,0 +1,4 @@
+0,574	Recv team1_1: (init team1 (version 15)) 
+0,574	Recv team1_1: (move -10 0)
+0,827	Recv team1_2: (init team1 (version 15)) 
+0,827	Recv team1_2: (move -10 0)

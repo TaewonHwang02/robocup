@@ -1,0 +1,499 @@
+In order to do some cleanup of the code, some functions have been removed from the code and placed here in case
+they are needed in the future.
+
+/// ~~~ FUNCTIONS FROM PLAYER.JAVA ~~~ ///
+// These functions have the player perform actions without using the GOAP system since it was not implemented at the time.
+
+	/**
+	 * method for player to run towards the ball with the toBall method and then shoot it in the direction of the goal
+	 */
+	public boolean shootBall(){
+		toBall(100); // get to the ball
+
+		// then try to shoot it
+
+		// flags.put("gl", new Point2D.Double(-52.5, 0));
+		// flags.put("gr", new Point2D.Double(52.5, 0));
+		double dir = PlayerMath.getDirection(this,52.5, 0);
+		try {
+			doAction("kick", "50 " + dir);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return true;
+	}
+
+
+	/**
+     * Sends ball in dir distant dist
+     * @param dir direction to send ball
+     * @param dist distance to send ball
+     */
+    public void pass(double dir, double dist) {
+    	//turn??
+    	int power = 0;
+    	//pitch.getTeammates();
+
+    	//posEst.calc
+
+    	//kick with some power
+    	try {
+    		doAction("kick", "" + power);
+    	} catch (IOException e) {
+    		e.printStackTrace();
+    	}
+    }
+
+
+	/**
+	 * Attempts a dribble to get past an opponent
+	 */
+	public void dribble(double dist, double time) {
+		//kick, run to, kick, run to
+		double distChange = 0;
+		while(dist > distChange) {
+			pass(0, 5);
+			toBall(dist/time);
+			distChange += 5; // placeholder value need to calculate later
+		}
+	}
+
+
+
+/**
+	 * moves the player towards an object t
+	 * This is an old version of the MoveToBallAction which was used before the GOAP system was implemented
+	 * @param t tuple representing the object t
+	 */
+	public boolean moveTowardsObject(Tuple t) { // very important :make sure the ball has all the params, working for now
+		if (t == null){
+			try {
+				doAction("turn", "20");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return false;
+		}
+		double dir = t.iParams[2];
+		double distance = t.iParams[1];
+
+		//double xA = ;
+		/*
+		System.out.println("Object : " + t);
+		System.out.println(" player direction " + pitch.getPlayerPos().iParams[2]);
+		System.out.println(" Turning direction :" + dir);
+		System.out.println("Distance is : " + distance);
+
+		 */
+
+		if (distance < 1){
+			return true;
+		}
+		try {
+			if (Math.abs(dir) > 5){
+				System.out.println("Debug1 - ball ");
+				doAction("turn", "" + dir);
+			} else{
+				System.out.println("Debug2 - ball");
+
+				doAction("dash", "100");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return false;
+
+	}
+
+
+	/**
+	 * Method for Player to run towards the ball, in a while loop
+	 */
+	public boolean toBall(double speed) {
+		pitch.resetBall();
+		Tuple ball = pitch.getBall();
+		//System.out.println(ball);
+		//moveTowardsObject(ball);
+		while (!moveTowardsObject(ball)){
+
+			try {
+				Thread.sleep(150);
+				ball = pitch.getBall();
+				pitch.resetBall();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return true;
+	}
+
+
+
+	/**
+	 * Move to coordinates
+	 * @param x x position
+	 * @param y y position
+	 */
+	public boolean moveTowardsPosition(double x, double y) { // working now, but still some bugs
+
+
+		double x2 = pitch.getPlayerPos().iParams[0];
+		double y2 = pitch.getPlayerPos().iParams[1];
+
+		double dir = Math.toDegrees(Math.atan((y-y2)/(x-x2))) - pitch.getPlayerPos().iParams[2];
+		double distance = Math.sqrt((y2 - y) * (y2 - y) + (x2 - x) * (x2 - x));
+
+		//double xA = ;
+
+
+		System.out.println(" player direction " + pitch.getPlayerPos().iParams[2]);
+
+		System.out.println(" Turning direction :" + dir);
+		System.out.println("Target pos : " + x + " " + y);
+		System.out.println("Player pos : " + x2 + " " + y2);
+		System.out.println("Distance is : " + distance);
+
+		if (distance < 1){
+			return true;
+		}
+		try {
+			if (Math.abs(dir) > 5){ // turn is not exact usually
+				System.out.println("Debug1");
+				doAction("turn", "" + dir);
+			} else{
+				System.out.println("Debug2");
+
+				doAction("dash", "100");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+
+	}
+
+
+
+	public boolean catchBall(){
+		Tuple t = pitch.getBall();
+		if (t == null){
+
+			return false;
+		}
+		double dir = t.iParams[2];
+		double distance = t.iParams[1];
+
+		/*
+		System.out.println(" Ball  : " + t);
+		System.out.println(" gk direction " + pitch.getPlayerPos().iParams[2]);
+		System.out.println(" Turning direction :" + dir);
+		System.out.println(" distance from gk is : " + distance);
+
+		 */
+
+		if (distance < 2){
+			try {
+				doAction("catch", ""+dir);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			return true;
+		} else if ( distance < 20){
+			try {
+				if ( dir < 20){
+					doAction("dash", "100");
+				} else {
+					doAction("turn", ""+dir);
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return false;
+	}
+
+
+
+/// ~~~ FUNCTIONS FROM GLOBALMAP.JAVA ~~~ ///
+// These functions were used to determine which players were seen from another player's point of view.
+
+
+	/**
+	 * function to draw in the screen
+	 * @param g g
+	 */
+	public void paintComponent(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		//blank reset
+		g2.setColor(new Color(255, 255, 255));
+		g2.fillRect(0, 0, 105 * scale, 68 * scale);
+
+		g2.setColor(new Color(0, 0, 0));
+
+		//field and center line
+		g2.drawRect(0, 0, 105 * scale, 68 * scale);
+		g2.drawLine(105 * scale/2, 0, 105 * scale/2, 68 * scale);
+		g2.drawOval((int)(52.5 * scale) - 8, 34 * scale - 8, 16, 16);
+
+		//penalty boxes
+		g2.drawRect(0, (int)((34 - 20.16) * scale), (int)(16.5 * scale), (int)(40.32 * scale));
+		g2.drawRect((int)(105 - 16.5) * scale, (int)((34 - 20.16) * scale), (int)(16.5 * scale), (int)(40.32 * scale));
+
+		Point2D.Double b = calcPos(ball);
+		g2.setColor(Color.red);
+		g2.drawOval((int)b.x - 2, (int)b.y - 2, 4, 4);
+
+		g2.setColor(new Color(0, 0, 255));
+		g2.fillOval((int)(playerPos.iParams[0] * scale + 52.5 * scale) - 5,
+				(int)(playerPos.iParams[1] * scale + 34 * scale) - 5, 10, 10);
+
+		for (int i = 0; i < gridMap.size(); i++) {
+			for (int j = 0; j < gridMap.get(i).size(); j++) {
+				for (int k = 0; k < gridMap.get(i).get(j).length; k++) {
+					if (gridMap.get(i).get(j)[k] == null) {
+						continue;
+					}
+					Tuple item = gridMap.get(i).get(j)[k];
+					if (item.label.contains(teamId)) {
+						g2.setColor(Color.green);
+					} else {
+						g2.setColor(Color.red);
+					}
+
+					//g2.setColor(new Color(0,(int)(255 * item.iParams[0]/curTime), 0));
+					g2.fillRect((int)((item.iParams[1] + 52.5) * scale - scale/2),
+							(int)((item.iParams[2] + 34) * scale - scale/2), scale, scale);
+					g2.drawString(item.label,
+							(int)((item.iParams[1] + 52.5) * scale),
+							(int)((item.iParams[2] + 30) * scale));
+//					if (item.iParams[3]) {
+//
+//					}
+					int radius = (int)positionEst.distance(5, item.iParams[7], item.iParams[6],
+							(int)(gridMap.get(i).get(j)[k].iParams[1]),
+							(int)(gridMap.get(i).get(j)[k].iParams[2]));
+					g2.drawOval((int)(item.iParams[1] + 52.5 - radius/2) * scale,
+							(int)(item.iParams[2] + 34 - radius/2) * scale,
+//							10, 10
+							radius * scale, radius * scale
+							);
+
+				}
+			}
+		}
+	}
+
+
+
+	/**
+	 * adds item to grid map
+	 * @param item item
+	 */
+	public void mapItem(Tuple item) {
+		int num = -1;
+		String team = "";
+		if (item.label.split("\"").length == 3) {
+			if ( item.label.split("\"")[2].equals("1goalie")){
+				num = 1;
+			} else {
+				num = Integer.parseInt(item.label.split("\"")[2]);
+			}
+
+			team = item.label.split("\"")[1];
+		} else if (item.label.split("\"").length == 2) {
+			team = item.label.split("\"")[1];
+		}
+
+		int index = findPlayer(num, team);
+
+		Tuple player;
+
+		Point2D.Double xy = calcPos(item);
+		int x = (int)((xy.getX() + 52.5)/5);
+		int y = (int)((xy.getY() + 34)/6.8);
+		clearSection((int)item.iParams[0], x, y);
+		if (teammates.size() == 0) {
+			return;
+		}
+		if (opponents.size() == 0) {
+			return;
+		}
+		if (index == 13) {
+			player = teammates.get(0);
+			teammates.remove(0);
+		} else if (index == -13) {
+			player = opponents.get(0);
+			opponents.remove(0);
+		} else if (index > 0) {
+			player = teammates.get(index);
+			teammates.remove(index);
+		} else {
+			player = opponents.get(-index);
+			opponents.remove(-index);
+		}
+
+//		String[] sparams = {"time", "x", "y", "ax", "ay", "rx", "ry", "ddist", "dir"};
+//		double[] iparams = {curTime, xy.getX(), xy.getY(), 0, 0, 0, 0, item.getIParams()[3], item.getIParams()[2]};
+
+		player.iParams[0] = curTime; 		// time
+		player.iParams[1] = xy.x;    		// x
+		player.iParams[2] = xy.y;    		// y
+		player.iParams[3] = x;       		// ax
+		player.iParams[4] = y;       		// ay
+		player.iParams[5] = xy.getX() - x;	// rx
+		player.iParams[6] = xy.getY() - y;	// ry
+		player.iParams[7] = item.iParams[3];// ddist
+		player.iParams[8] = item.iParams[2];// dir
+//		System.out.println("opponents size: " + opponents.size());
+//		System.out.println("teammates size: " + teammates.size());
+
+//		Tuple newItem = new Tuple(item.label, sparams, iparams);
+//		System.out.println("Mapped " + player.label + " to x: " + xy.x + ", y: " +xy.y);
+		addMap(player, x, y);
+	}
+
+
+
+
+	/**
+	 * Find index of player in arraylist
+	 * @param num num
+	 * @param team team
+	 * @return index of player (with minus if it's from the opposing team), or (-)13 if player not found in array
+	 */
+	public int findPlayer(int num, String team) {
+
+		if (team.length() == 0) {
+			return -13;
+		}
+
+		if (teamId.equals(team)) {
+			if (num == -1) {
+				return 13;
+			}
+			for (int i = 0; i < teammates.size(); i++) {
+				if (teammates.get(i).label.equals(teamId + num)) {
+					return i;
+				}
+			}
+			returnPlayer(num, true);
+			return teammates.size()-1;
+		} else {
+			if (num == -1) {
+				return -13;
+			}
+			for (int i = 0; i < opponents.size(); i++) {
+				if (opponents.get(i).label.equals("" + num)) {
+					return -i;
+				}
+			}
+			returnPlayer(num, false);
+			return -opponents.size()+1;
+		}
+	}
+
+
+
+
+	/**
+	 * Removes seen player from gridMap and adds them to respective list
+	 * @param num num
+	 * @param team team
+	 */
+	public void returnPlayer(int num, boolean team) {
+		for (int i = 0; i < gridMap.size(); i++) {
+			for (int j = 0; j < gridMap.get(i).size(); j ++) {
+				for (int k = 0; k < gridMap.get(i).get(j).length; k++) {
+					Tuple player = gridMap.get(i).get(j)[k];
+					if (player == null) {
+						continue;
+					}
+					if (team) {
+						if (player.label.length() < teamId.length() + 1) {
+							continue;
+						}
+						if (player.label.substring(0, teamId.length()).equals(teamId)) {
+							if (player.label.substring(teamId.length()).equals("" + num)) {
+								gridMap.get(i).get(j)[k] = null;
+								teammates.add(player);
+							}
+						}
+					} else {
+						if (player.label.equals("" + num)) {
+							gridMap.get(i).get(j)[k] = null;
+							opponents.add(player);
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+
+	/**
+	 * Removes old entries in a area on gridMap
+	 * @param time time
+	 * @param x x
+	 * @param y y
+	 */
+	public void clearSection(int time, int x, int y) {
+		if (x<0 || y<0 || gridMap.size() <= x ||gridMap.get(x).size() <= y){
+			return;
+		}
+		Tuple[] section = gridMap.get(x).get(y);
+		for (int i = 0; i < section.length; i++) {
+			if (section[i] == null) {
+				continue;
+			} else {
+				if (section[i].iParams[0] < curTime) {
+					if (section[i].label.contains(teamId)) {
+						teammates.add(section[i]);
+					} else {
+						opponents.add(section[i]);
+					}
+					section[i] = null;
+				}
+			}
+		}
+	}
+
+
+
+	/**
+	 * Searches through grid section for empty space to place item.
+	 */
+	public void addMap(Tuple item, int x, int y) {
+		if ( x< 0 || y<0 || gridMap.size() <= x ||gridMap.get(x).size() <= y){
+			return;
+		}
+		Tuple[] section = gridMap.get(x).get(y);
+		int empty = 0;
+		boolean found = false;
+		for (int i = 0; i < section.length; i++) {
+			if (section[i] == null) {
+				empty = i;
+			} else {
+				if (section[i].label.toLowerCase().equals(item.label.toLowerCase())) {
+					section[i] = item;
+					found = true;
+				}
+			}
+		}
+		if (!found)
+			section[empty] = item;
+	}
+
+
+	/**
+	 * gets the GridMap
+	 * @return map
+	 */
+	public ArrayList<ArrayList<Tuple[]>> getGridMap() {
+		return gridMap;
+	}
