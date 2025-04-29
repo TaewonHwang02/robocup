@@ -157,9 +157,9 @@ public abstract class Player implements Runnable, GOAPAgent {
 
 
 		if (gk) {
-			sendData = ("(init " + teamName + " (version 15) (goalie)) ").getBytes();
+			sendData = ("(init " + teamName + " (version 14) (goalie)) ").getBytes();
 		} else {
-			sendData = ("(init " + teamName + " (version 15)) ").getBytes();
+			sendData = ("(init " + teamName + " (version 14)) ").getBytes();
 		}
 
 		DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, 6000);

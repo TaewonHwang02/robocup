@@ -1,6 +1,3 @@
-// File: RCSS2D/src/teamtester.java
-package RCSS2D.src;
-
 import common.players.Team;    // the template AI module
 import teamA.TeamMain;         // your custom Team-A module
 
