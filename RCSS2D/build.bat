@@ -32,6 +32,10 @@ src/teamA/teamA_actions/*.java ^
 src/teamA/teamA_goals/*.java ^
 src/teamA/teamA_players/*.java ^
 src/teamA/*.java ^
+src/teamB/goals/*.java ^
+src/teamB/planning/*.java ^
+src/teamB/players/*.java ^
+src/teamB/TeamB.java ^
 src/teamtester.java
 
 if %errorlevel% neq 0 (
