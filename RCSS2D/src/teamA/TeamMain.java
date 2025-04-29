@@ -70,7 +70,7 @@ public class TeamMain extends Team {
     }
 
     /**
-     * Your custom team‐A formation:
+     * Team‐A formation:
      * returns [x,y] for each jersey number.
      */
     private int[] getHomePosition(int jersey, String side) {
