@@ -35,6 +35,7 @@ src/teamA/*.java ^
 src/teamB/goals/*.java ^
 src/teamB/planning/*.java ^
 src/teamB/players/*.java ^
+src/teamB/actions/*.java ^
 src/teamB/TeamB.java ^
 src/teamtester.java
 

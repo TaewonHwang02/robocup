@@ -1,12 +1,19 @@
+// ────────── File: src/teamB/planning/ProactivePlanner.java ──────────
 package teamB.planning;
 
-import teamB.goals.MetaGoal;
-import java.util.List;
+import java.util.*;
 
-/** The “planner” is trivial: just return the goal’s own plan. */
 public class ProactivePlanner {
 
-    public List<String> makePlan(MetaGoal g) {
-        return g.buildPlan();
+    /** Return a naïve fixed sequence of step-labels for a goal label. */
+    public List<String> makePlanFor(String goal){
+        return switch(goal){
+            case "attack"         -> List.of("move_to_ball",
+                                              "dribble_forward",
+                                              "shoot_goal");
+            case "guard_carrier"  -> List.of("move_near_carrier",
+                                              "shadow_opponent");
+            default               -> List.of();
+        };
     }
 }

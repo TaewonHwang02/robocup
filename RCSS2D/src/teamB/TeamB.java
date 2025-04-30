@@ -20,7 +20,6 @@ public class TeamB extends Team {
     ) {
         int jersey = 0;
 
-        // — No fancy roles yet, just ProactivePlayer for everyone —
         if (have_gk) {
             int[] home = getHomePosition(jersey, side);
             players[jersey] = new ProactivePlayer(jersey, name, false, home[0], home[1], side, this);

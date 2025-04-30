@@ -1,96 +1,91 @@
+// ────────── File: src/teamB/players/ProactivePlayer.java ──────────
 package teamB.players;
 
-import teamB.goals.*;
-import teamB.planning.ProactivePlanner;
-import java.util.*;
-
+import common.players.Player;
 import common.players.Team;
 
-/**
- * Minimal proactive agent:
- *  • keeps a FIFO queue of goals
- *  • plans once per goal
- *  • executes step-by-step, with tiny sleep to emulate cycle
- *  • interrupts on two toy events (ball lost / help call)
- */
-public class ProactivePlayer implements Runnable {
+import teamB.planning.ProactivePlanner;
+import teamB.actions.*;
 
-    // ----------------------------------------------------------------–
-    private final Queue<MetaGoal> goalQueue = new ArrayDeque<>();
+import java.util.*;
+
+/** Very small proactive agent that does NOT use MetaGoal.          */
+public class ProactivePlayer extends Player {
+
+    /* ------------- high-level goal queue (strings) --------------- */
+    private final Deque<String> goalQ = new ArrayDeque<>();
     private final ProactivePlanner planner = new ProactivePlanner();
 
-    private List<String> currentPlan = List.of();
-    private int   planIndex = 0;
-    private final String name;
+    private List<String> plan  = List.of();   // current low-level steps
+    private int          stepI = 0;
 
-    public ProactivePlayer(int num, String teamName, boolean visual, int x, int y, String side, Team teamRef) {
-        super();
-        this.name = "";
+    /* ------- small reusable Action helpers (real movement) ------- */
+    private final MoveToBallAction move  = new MoveToBallAction();
+    private final DribbleAction    drib  = new DribbleAction();
+    private final ShootAction      shot  = new ShootAction();
+    private final GuardAction      guard = new GuardAction();
+    private final ShadowAction     shad  = new ShadowAction();
+
+    /* ------------------------------------------------------------- */
+    public ProactivePlayer(int num,String team,boolean vis,
+                           int x,int y,String side,Team ref) {
+        super(num, team, vis, x, y, /*gk*/false, side, ref, "proactive");
     }
 
-    // ----------------------------------------------------------------–
-    @Override public void run() {
-        enqueueDefaultGoals();
+    /* ============================================================= */
+    @Override public void specificRun() {
 
-        while (!goalQueue.isEmpty()) {
-            MetaGoal g = goalQueue.peek();
+        enqueueDefaultGoal();                // “attack”
 
-            // plan once per goal
-            if (planIndex == 0 || planIndex >= currentPlan.size()) {
-                currentPlan = planner.makePlan(g);
-                planIndex    = 0;
+        while (!goalQ.isEmpty()) {
+
+            /* -------- create (or refresh) low-level plan -------- */
+            String gLabel = goalQ.peekFirst();
+            if (stepI == 0 || stepI >= plan.size()) {
+                plan  = planner.makePlanFor(gLabel);
+                stepI = 0;
             }
 
-            // execute one step
-            String step = currentPlan.get(planIndex);
-            executeStep(step);
-            planIndex++;
+            /* ----------- perform next atomic step ------------- */
+            performStep(plan.get(stepI));
+            stepI++;
 
-            // finished?
-            if (planIndex >= currentPlan.size()) {
-                g.isCompleted();
-                goalQueue.remove();
+            /* -------------- goal satisfied? ------------------- */
+            if (stepI >= plan.size()) {          // finished low-level plan
+                goalQ.removeFirst();             // pop goal
             }
 
-            // ── interrupts (toy examples) ──
-            if (ballLost())          { cancelAndPushFront(new AttackGoal()); }
-            if (helpRequested())     { cancelAndPushFront(new GuardCarrierGoal()); }
+            /* -------------- toy interrupts ------------------- */
+            if (ballLost())      pushFront("attack");
+            if (helpRequested()) pushFront("guard_carrier");
 
-            sleep(80);   // simulate 80 ms cycle
-        }
-        System.out.println(name + " finished all goals.");
-    }
-
-    // ----------------------------------------------------------------–
-    /* ===== helper behaviour stubs ===== */
-
-    private void enqueueDefaultGoals() {
-        goalQueue.add(new AttackGoal());
-    }
-
-    private void executeStep(String s) {
-        switch (s) {
-            case "move_to_ball"         -> System.out.println(name + " dashes to ball");
-            case "dribble_forward"   -> System.out.println(name + " dribbles");
-            case "shoot_goal"        -> System.out.println(name + " shoots!");
-            case "move_near_carrier" -> System.out.println(name + " guards carrier");
-            case "shadow_opponent"   -> System.out.println(name + " shadows foe");
-            case "tackle_if_close"   -> System.out.println(name + " tries tackle");
-            default                  -> System.out.println(name + " ??? " + s);
+            sleep(80);                            // ~80 ms cycle
         }
     }
 
-    // toy interrupt flags (replace with real sensor checks)
+    /* ============================================================= */
+    private void enqueueDefaultGoal() { goalQ.addLast("attack"); }
+    private void pushFront(String g){ goalQ.addFirst(g); plan=List.of(); stepI=0; }
+
+    /* -- execute one low-level step label with real actions ------- */
+    private void performStep(String s){
+        try {
+            switch (s) {
+                case "move_to_ball"      -> move.perform(this);
+                case "dribble_forward"   -> drib.perform(this);
+                case "shoot_goal"        -> shot.perform(this);
+                case "move_near_carrier" -> guard.perform(this);
+                case "shadow_opponent"   -> shad.perform(this);
+                default                  -> {}          // ignore unknown
+            }
+        } catch (Exception e){ e.printStackTrace(); }
+    }
+
+    /* -------------- stub interrupt conditions -------------------- */
     private boolean ballLost()      { return false; }
     private boolean helpRequested() { return false; }
 
-    private void cancelAndPushFront(MetaGoal g) {
-        if (!goalQueue.isEmpty()) goalQueue.peek().cancel();
-        goalQueue.add(g);
-        currentPlan = List.of(); planIndex = 0;
-    }
-
-    private static void sleep(long ms) {
-        try { Thread.sleep(ms); } catch (InterruptedException ignored) {}
+    private static void sleep(long ms){
+        try { Thread.sleep(ms); } catch (InterruptedException ignored){}
     }
 }
