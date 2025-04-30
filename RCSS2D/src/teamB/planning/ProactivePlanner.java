@@ -1,12 +1,20 @@
 package teamB.planning;
 
-import teamB.goals.MetaGoal;
-import java.util.List;
+import java.util.*;
 
-/** The “planner” is trivial: just return the goal’s own plan. */
+/** Hard-coded micro-planner that maps a high-level label ➜ list of steps. */
 public class ProactivePlanner {
 
-    public List<String> makePlan(MetaGoal g) {
-        return g.buildPlan();
+    private static final Map<String,List<String>> TABLE = Map.of(
+        // “attack”  →  go get the ball, dribble a bit, shoot when close
+        "attack",          List.of("move_to_ball", "dribble_forward", "shoot_goal"),
+
+        // “guard_carrier”  →  run near the player who has the ball and shadow
+        "guard_carrier",   List.of("move_near_carrier", "shadow_opponent")
+    );
+
+    /** Return a *copy* so the caller can freely mutate the list.            */
+    public List<String> makePlanFor(String goalLabel) {
+        return new ArrayList<>( TABLE.getOrDefault(goalLabel, List.of()) );
     }
 }

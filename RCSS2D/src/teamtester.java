@@ -10,7 +10,7 @@ public class teamtester {
         teamA.createTeam("l", 1, 3, 2, 4, true);
 
         // — Team B (template AI, e.g. 1–2–1–6 + GK) —
-        Team teamB = new TeamB("TeamB");
+        TeamB teamB = new TeamB("TeamB");
         teamB.createTeam("r", 1, 2, 1, 6, true);
 
         // kick off
