@@ -36,7 +36,7 @@ public class GlobalMap extends JPanel{
 			StateKeys.goal_kick_r, StateKeys.goal_l, StateKeys.goal_r, StateKeys.drop_ball, StateKeys.offside_l, StateKeys.offside_r,
 			StateKeys.penalty_kick_l, StateKeys.penalty_kick_r, StateKeys.foul_charge_l, StateKeys.foul_charge_r, StateKeys.back_pass_l,
 			StateKeys.back_pass_r, StateKeys.free_kick_fault_l, StateKeys.free_kick_fault_r, StateKeys.indirect_free_kick_l,
-			StateKeys.indirect_free_kick_r, StateKeys.illegal_defense_l, StateKeys.illegal_defense_r };
+			StateKeys.indirect_free_kick_r, StateKeys.illegal_defense_l, StateKeys.illegal_defense_r};
 
 	public final HashMap<StateKeys, Boolean> state = new HashMap<>();
 
@@ -79,6 +79,8 @@ public class GlobalMap extends JPanel{
 		state.put(StateKeys.designated_kick_off, false);
 		state.put(StateKeys.in_side_defense,    false);
 		state.put(StateKeys.in_support_position,false);
+		state.put(StateKeys.in_support_winger,    false);  // NEW
+		state.put(StateKeys.in_support_midfielder,false);
 	
 
 		for (StateKeys key: hearStates){
@@ -280,8 +282,10 @@ public class GlobalMap extends JPanel{
 
 				if (packet[1].startsWith("goal_l")
 						|| packet[1].startsWith("goal_r")
+						//|| packet[1].startsWith("play_on")
 						|| packet[1].startsWith("before_kick_off")){
 					state.put(StateKeys.move_allowed, true);
+					// state.put(StateKeys.in_new_position, true);
 				} else {
 					state.put(StateKeys.move_allowed, false);
 					state.put(StateKeys.in_new_position, false);

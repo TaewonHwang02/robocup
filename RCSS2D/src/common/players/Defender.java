@@ -1,7 +1,5 @@
 package common.players;
 
-import java.util.LinkedList;
-
 import common.StateKeys;
 import common.actions.*;
 import common.goals.*;
@@ -27,7 +25,6 @@ public class Defender extends Player {
         // ACTIONS
         addAvailableAction(new GetBallInFOVAction());
         addAvailableAction(new CenterBallInFOVAction());
-
         addAvailableAction(new MoveToDefPositionAction());
         addAvailableAction(new AlignWithBallAction());
         addAvailableAction(new MoveToBallAction());

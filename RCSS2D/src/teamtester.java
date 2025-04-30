@@ -1,6 +1,6 @@
 import common.players.Team;    // the template AI module
 import teamA.TeamMain;         // custom Team-A module
-import teamB.TeamB;
+
 
 public class teamtester {
     public static void main(String[] args) {
@@ -10,7 +10,7 @@ public class teamtester {
         teamA.createTeam("l", 1, 3, 2, 4, true);
 
         // — Team B (template AI, e.g. 1–2–1–6 + GK) —
-        Team teamB = new TeamB("TeamB");
+        Team teamB = new Team("TeamB");
         teamB.createTeam("r", 1, 2, 1, 6, true);
 
         // kick off

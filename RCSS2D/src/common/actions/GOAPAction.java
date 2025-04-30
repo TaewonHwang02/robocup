@@ -72,7 +72,8 @@ public abstract class GOAPAction {
     }
 
     /** Remove a precondition for this action **/
-    public void removePrecondition(String condition){
+    // Need to remove statekey not string
+    public void removePrecondition(StateKeys condition){
         preconditions.remove(condition);
     }
 

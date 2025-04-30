@@ -32,5 +32,5 @@ public enum StateKeys {
 
     //newly added
 
-    in_side_defense, in_support_position
+    in_side_defense, in_support_position, in_support_winger, in_support_midfielder;
 }
