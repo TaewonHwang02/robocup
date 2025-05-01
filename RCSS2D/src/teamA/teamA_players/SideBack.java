@@ -16,19 +16,16 @@ public class SideBack extends Player {
 
         // GOALS
         addAvailableGoal(new FocusOnBallGoal());
-        // add
-        //add
         addAvailableGoal(new GetInSideDefenseGoal());
         addAvailableGoal(new ResetPositionsGoal());
         addAvailableGoal(new AssistWingerGoal());
-        addAvailableGoal(new FocusOnBallGoal());
 
         // ACTIONS
         addAvailableAction(new GetBallInFOVAction());       
         addAvailableAction(new CenterBallInFOVAction());    
         addAvailableAction(new MoveToBallAction());
         addAvailableAction(new MoveToSideDefenseAction());
-        //addAvailableAction(new TeleportAction());
+        addAvailableAction(new TeleportAction());
         addAvailableAction(new TackleAction());
         addAvailableAction(new CrossBallAction());
         addAvailableAction(new MoveToWingerAssistAction());

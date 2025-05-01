@@ -33,7 +33,7 @@ public class CenterBack extends Player {
         addAvailableAction(new MoveToDefPositionAction());
         addAvailableAction(new AlignWithBallAction());
         addAvailableAction(new MoveToBallAction());
-       // addAvailableAction(new TeleportAction());
+        addAvailableAction(new TeleportAction());
         addAvailableAction(new TackleAction());
         addAvailableAction(new MoveToMidfielderAssistAction());
     }
