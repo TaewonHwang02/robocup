@@ -19,8 +19,6 @@ public class MoveToWingerAssistAction extends GOAPAction {
     public MoveToWingerAssistAction() {
         super(false, 1.0);
 
-       
-
         addPrecondition(StateKeys.team_has_ball,     true);
         addPrecondition(StateKeys.in_support_winger, false);
         addEffect(     StateKeys.in_support_winger,  true);
@@ -62,24 +60,39 @@ public class MoveToWingerAssistAction extends GOAPAction {
     @Override
     public boolean executeAction(Player p) {
         if (!computedTarget) return false;
+    
         Tuple pos = p.getPlayerPos();
-        double dx = tx - pos.iParams[0], dy = ty - pos.iParams[1];
-        double dist = Math.hypot(dx, dy);
-
-        if (dist < 1.0) {
+        if (pos == null || pos.iParams.length < 2) return false;
+    
+        double myY = pos.iParams[1];
+    
+        // If we’re more than 1m below the target, dash up (90°)
+        if (myY < ty - 1.0) {
+            try {
+                p.doDash("100", "90");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        // If we’re more than 1m above the target, dash down (-90°)
+        else if (myY > ty + 1.0) {
+            try {
+                p.doDash("100", "-90");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        // Otherwise, we’re in position
+        else {
             p.getPitch().state.put(StateKeys.in_support_winger, true);
             return true;
         }
-
-        double absDir = Math.toDegrees(Math.atan2(dy, dx));
-        try {
-            p.doDash("100", String.format("%.1f", absDir));
-        } catch(IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    
         return false;
     }
+    
 
     @Override
     public void resetActionSpecifics() {

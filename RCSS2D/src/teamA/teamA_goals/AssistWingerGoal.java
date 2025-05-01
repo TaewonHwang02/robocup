@@ -6,14 +6,12 @@ import common.players.Player;
 
 public class AssistWingerGoal extends GOAPGoal {
     public AssistWingerGoal() {
-        // end‐state: we want our sideback in assist position
         addCondition(StateKeys.in_support_winger, true);
     }
     @Override
     public boolean validitySpecifics(Player agent) {
-        // only when *our* team has possession
         Boolean weHave = agent.getPitch().state.get(StateKeys.team_has_ball);
-        return weHave != null && weHave;
+        return (weHave != null && weHave) && agent.playerCanDash();
     }
     @Override
     public double calculatePriority(Player agent) {
